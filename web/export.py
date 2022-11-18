@@ -35,6 +35,12 @@ def clean_directions(directions):
         .replace("&iacute;", "í")
         .replace("&oacute;", "ó")
         .replace("&uacute;", "ú")
+        .replace("&Aacute;", "Á")
+        .replace("&Eacute;", "É")
+        .replace("&Iacute;", "Í")
+        .replace("&Oacute;", "Ó")
+        .replace("&Uacute;", "Ú")
+        .replace("&nacute;", "ñ")
         .replace("&deg;", "°")
         .replace("&nbsp;", "")
     )
@@ -42,11 +48,13 @@ def clean_directions(directions):
 
 
 def create_recipe(recipe):
+    tags = recipe.tags.all()
     ings = recipe.ingredients.all()
     new_recipe = {
         "author": str(recipe.author),
         "title": recipe.title,
         "photo": str(recipe.photo).decode("utf-8"),
+        "tags": [str(tag).decode("utf-8") for tag in tags],
         "ingredients": [format_ing(ing) for ing in ings],
         # html: remove <p>
         "directions": clean_directions(recipe.directions).decode("utf-8"),
@@ -59,6 +67,5 @@ all_recipes = Recipe.objects.order_by("-pub_date")
 recipe_list = filter(lambda r: str(r.author) in AUTHORS, all_recipes)
 
 new_recipes = [create_recipe(recipe) for recipe in recipe_list]
-
 with codecs.open(OUTPUT_FILE, "w", "utf-8") as f:
     json.dump(new_recipes, f, ensure_ascii=False, indent=4)
